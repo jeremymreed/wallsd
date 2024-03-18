@@ -1104,6 +1104,7 @@ name = "wallsd"
 version = "0.0.0"
 dependencies = [
  "async-std",
+ "event-listener 5.2.0",
  "zbus",
 ]
 
