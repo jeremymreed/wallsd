@@ -1146,7 +1146,9 @@ dependencies = [
  "async-std",
  "event-listener 5.2.0",
  "futures",
+ "serde",
  "zbus",
+ "zvariant",
 ]
 
 [[package]]
