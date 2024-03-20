@@ -9,6 +9,8 @@ edition = "2021"
 async-std = { version = "1.12.0", features = ["attributes"] }
 event-listener = "5.2.0"
 futures = "0.3.30"
+json = "0.12.4"
+rand = "0.8.5"
 serde = { version = "1.0.197", features = ["derive"] }
 zbus = "4.1.2"
 zvariant = "4.0.2"
