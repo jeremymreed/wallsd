@@ -13,8 +13,6 @@ struct Point {
 }
 
 struct DbusServer {
-    outputs: Vec<String>,
-    collection: collection::Collection,
     tx: Sender<String>,
     done: Event,
 }
@@ -31,17 +29,11 @@ impl DbusServer {
     async fn test(&self, point: Point) {
         println!("test called with point: {:#?}", point);
     }
-
-    async fn set_wallpaper(&self) {
-        swww::set_wallpapers(&self.collection, &self.outputs);
-    }
 }
 
-pub async fn run_server(tx: Sender<String>, outputs: Vec<String>, collection: collection::Collection) -> Result<()> {
+pub async fn run_server(tx: Sender<String>) -> Result<()> {
 
     let dbus_server = DbusServer {
-        outputs,
-        collection,
         tx,
         done: event_listener::Event::new(),
     };

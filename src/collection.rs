@@ -1,11 +1,12 @@
 use std::fs;
 
+#[derive(Debug, Clone)]
 pub struct Collection {
     pub collection: Vec<String>,
 }
 
 impl Collection {
-
+    /* TODO: Note that we are not checking each file to be sure it's an image, nor are we checking the resolutions. */
     pub fn scan_collection(&mut self, absolute_path: &String) {
         self.process(absolute_path);
     }
