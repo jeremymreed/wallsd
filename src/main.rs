@@ -1,6 +1,6 @@
 use std::sync::mpsc;
-use std::thread;
-use std::time::Duration;
+use std::{thread, time::{Duration, Instant}};
+use chrono::Local;
 use futures::executor::block_on;
 use crate::output::Output;
 
@@ -9,6 +9,8 @@ mod mode;
 mod output;
 mod resolution;
 mod dbus_server;
+mod systemd_analyze;
+mod on_calendar;
 mod swaymsg;
 mod swww;
 mod collection;
@@ -45,25 +47,37 @@ async fn main() {
     });
     */
 
-    let mut seconds:u32 = 0;
+    let sleep_duration = Duration::from_secs(1);
+
+    let oncalendar_string: String = "*-*-* *:0/2".to_string();
+    println!("oncalendar_string: {:?}", oncalendar_string);
+
+    let mut target  = systemd_analyze::get_next_event(&oncalendar_string);
 
     loop {
-        println!("Listening for dbus events!");
+        let now = Instant::now();
+
+        let current_time = Local::now();
+
+        println!("Checking for dbus events!");
         match rx.try_recv() {
             Ok(message) => println!("Got message: {}", message),
             Err(_) => println!("No message"),
         };
 
-        println!("seconds: {}", seconds);
-
-        if seconds >= 60 {
+        // Check to see if the timer should be fired.
+        if on_calendar::is_time_after_target(target, current_time) {
+            println!("******  TIMER FIRED *******");
             for output in &outputs {
-                swww::set_wallpaper(&output.clone());
+                swww::set_wallpaper(output);
             }
-            seconds = 0;
+            target = systemd_analyze::get_next_event(&oncalendar_string);
         }
 
-        thread::sleep(Duration::from_secs(1));
-        seconds += 1;
+        let elapsed = now.elapsed();
+        println!("Elapsed time: {:#?}", elapsed);
+        println!("\n");
+
+        thread::sleep(sleep_duration);
     }
 }
