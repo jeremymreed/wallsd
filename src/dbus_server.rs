@@ -22,12 +22,12 @@ impl DbusServer {
     async fn say_hello(&self, name: &str) -> String {
         self.tx.send(String::from("Foo Bar")).unwrap();
 
-        println!("say_hello called with name: {}", name);
+        tracing::debug!("say_hello called with name: {}", name);
         format!("Hello, {}!", name)
     }
 
     async fn test(&self, point: Point) {
-        println!("test called with point: {:#?}", point);
+        tracing::debug!("test called with point: {:#?}", point);
     }
 }
 

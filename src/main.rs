@@ -1,6 +1,8 @@
 use std::sync::mpsc;
 use std::{thread, time::{Duration, Instant}};
 use chrono::Local;
+use tracing::Level;
+use tracing_subscriber::FmtSubscriber;
 use futures::executor::block_on;
 use crate::output::Output;
 
@@ -17,13 +19,20 @@ mod collection;
 
 #[async_std::main]
 async fn main() {
-    println!("wallsd started");
+    tracing::info!("wallsd started");
+
+    let subscriber = FmtSubscriber::builder()
+        .with_max_level(Level::TRACE)
+        .finish();
+
+    tracing::subscriber::set_global_default(subscriber)
+        .expect("setting default subscriber failed");
 
     let (tx, rx) = mpsc::channel::<String>();
 
     let mut outputs = swaymsg::get_outputs();
 
-    println!("Found outputs: {:#?}", outputs);
+    tracing::debug!("Found outputs: {:#?}", outputs);
 
     let mut collection: collection::Collection = collection::Collection {
         collection: Vec::new(),
@@ -31,18 +40,18 @@ async fn main() {
 
     collection.scan_collection(&String::from("/home/jeremyr/Pictures/Wallpapers"));
 
-    println!("Number of wallpapers: {}", collection.collection.len());
+    tracing::debug!("Number of wallpapers: {}", collection.collection.len());
 
     //for index in 0..outputs.len() {
     for output in &mut outputs {
         output.images = collection.collection.clone();
     }
 
-    println!("Outputs with images: {:#?}", outputs);
+    //tracing::trace!("Outputs with images: {:#?}", outputs);
 
     /*
     thread::spawn(|| {
-        println!("Starting dbus server");
+        debug!("Starting dbus server");
         let _ = block_on(dbus_server::run_server(tx));
     });
     */
@@ -50,7 +59,7 @@ async fn main() {
     let sleep_duration = Duration::from_secs(1);
 
     let oncalendar_string: String = "*-*-* *:0/2".to_string();
-    println!("oncalendar_string: {:?}", oncalendar_string);
+    tracing::debug!("oncalendar_string: {:?}", oncalendar_string);
 
     let mut target  = systemd_analyze::get_next_event(&oncalendar_string);
 
@@ -59,15 +68,15 @@ async fn main() {
 
         let current_time = Local::now();
 
-        println!("Checking for dbus events!");
+        tracing::trace!("Checking for dbus events!");
         match rx.try_recv() {
-            Ok(message) => println!("Got message: {}", message),
-            Err(_) => println!("No message"),
+            Ok(message) => tracing::debug!("Got message: {}", message),
+            Err(_) => tracing::debug!("No message"),
         };
 
         // Check to see if the timer should be fired.
         if on_calendar::is_time_after_target(target, current_time) {
-            println!("******  TIMER FIRED *******");
+            tracing::debug!("******  TIMER FIRED *******");
             for output in &outputs {
                 swww::set_wallpaper(output);
             }
@@ -75,8 +84,8 @@ async fn main() {
         }
 
         let elapsed = now.elapsed();
-        println!("Elapsed time: {:#?}", elapsed);
-        println!("\n");
+        tracing::trace!("Elapsed time: {:#?}\n\n", elapsed);
+
 
         thread::sleep(sleep_duration);
     }

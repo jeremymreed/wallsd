@@ -21,7 +21,7 @@ impl Collection {
                 }
             }
             Err(error) => {
-                println!("Couldn't process: {}, Error: {}", absolute_path, error);
+                tracing::warn!("Couldn't process: {}, Error: {}", absolute_path, error);
             }
         };
     }

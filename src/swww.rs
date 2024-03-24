@@ -15,9 +15,9 @@ pub fn set_wallpaper(output: &Output) {
         .output()
         .expect("failed to execute process");
 
-    println!("output: {}", output.name);
-    println!("random_wallpaper: {}", random_wallpaper);
-    println!("status: {}", swww_output.status);
-    println!("stdout: {}", String::from_utf8_lossy(&swww_output.stdout));
-    println!("stderr: {}", String::from_utf8_lossy(&swww_output.stderr));
+    tracing::debug!("output: {}", output.name);
+    tracing::debug!("random_wallpaper: {}", random_wallpaper);
+    tracing::debug!("status: {}", swww_output.status);
+    tracing::debug!("stdout: {}", String::from_utf8_lossy(&swww_output.stdout));
+    tracing::debug!("stderr: {}", String::from_utf8_lossy(&swww_output.stderr));
 }
