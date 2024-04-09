@@ -1,8 +1,8 @@
 use std::sync::mpsc;
 use std::{thread, time::{Duration, Instant}};
 use chrono::Local;
-use futures::executor::block_on;
-use crate::output::Output;
+//use futures::executor::block_on;
+//use crate::output::Output;
 
 mod logging;
 mod config;

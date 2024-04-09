@@ -1,6 +1,5 @@
 use crate::resolution::Resolution;
 use crate::mode::Mode;
-use crate::collection::Collection;
 
 #[derive(Debug, Clone)]
 pub struct Output {

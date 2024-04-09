@@ -1,4 +1,3 @@
-use confy;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Serialize, Deserialize)]

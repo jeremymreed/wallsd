@@ -2,7 +2,6 @@ use std::process::Command;
 use crate::mode;
 use crate::resolution;
 use crate::output;
-use crate::collection::Collection;
 
 pub fn get_outputs() -> Vec<output::Output>{
     tracing::info!("Getting outputs");
