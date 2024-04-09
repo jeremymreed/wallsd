@@ -22,7 +22,9 @@ mod collection;
 async fn main() {
     tracing::info!("wallsd started");
 
-    let file_appender = tracing_appender::rolling::hourly("/home/jeremyr/.local/state/walls/", "wallsd.log");
+    let log_path = shellexpand::tilde("~/.local/state/walls").into_owned();
+    println!("Log path: {}", log_path);
+    let file_appender = tracing_appender::rolling::hourly(log_path, "wallsd.log");
     let subscriber = FmtSubscriber::builder()
         .with_max_level(Level::TRACE)
         .with_writer(file_appender)
