@@ -6,6 +6,7 @@ use tracing_subscriber::FmtSubscriber;
 use futures::executor::block_on;
 use crate::output::Output;
 
+mod config;
 mod command;
 mod mode;
 mod output;
@@ -28,26 +29,31 @@ async fn main() {
     tracing::subscriber::set_global_default(subscriber)
         .expect("setting default subscriber failed");
 
+    tracing::info!("Loading config");
+    let config = config::Config::load_config();
+    tracing::info!("Loaded config");
+
     let (tx, rx) = mpsc::channel::<String>();
 
+    tracing::info!("Loading outputs");
     let mut outputs = swaymsg::get_outputs();
+    tracing::info!("Loaded outputs");
 
     tracing::debug!("Found outputs: {:#?}", outputs);
 
+    tracing::info!("Loading Wallpaper collection");
     let mut collection: collection::Collection = collection::Collection {
         collection: Vec::new(),
     };
 
-    collection.scan_collection(&String::from("/home/jeremyr/Pictures/Wallpapers"));
+    collection.scan_collection(&config.wallpaper_collection);
 
     tracing::debug!("Number of wallpapers: {}", collection.collection.len());
+    tracing::info!("Loaded Wallpaper collection");
 
-    //for index in 0..outputs.len() {
     for output in &mut outputs {
         output.images = collection.collection.clone();
     }
-
-    //tracing::trace!("Outputs with images: {:#?}", outputs);
 
     /*
     thread::spawn(|| {
@@ -58,11 +64,11 @@ async fn main() {
 
     let sleep_duration = Duration::from_secs(1);
 
-    let oncalendar_string: String = "*-*-* *:0/2".to_string();
-    tracing::debug!("oncalendar_string: {:?}", oncalendar_string);
+    tracing::debug!("oncalendar_string: {:?}", config.oncalendar_string);
 
-    let mut target  = systemd_analyze::get_next_event(&oncalendar_string);
+    let mut target  = systemd_analyze::get_next_event(&config.oncalendar_string);
 
+    tracing::info!("Starting main loop");
     loop {
         let now = Instant::now();
 
@@ -80,7 +86,7 @@ async fn main() {
             for output in &outputs {
                 swww::set_wallpaper(output);
             }
-            target = systemd_analyze::get_next_event(&oncalendar_string);
+            target = systemd_analyze::get_next_event(&config.oncalendar_string);
         }
 
         let elapsed = now.elapsed();
