@@ -9,6 +9,7 @@ pub struct Config {
 
 impl Config {
     pub fn load_config() -> Config {
+        tracing::info!("Loading config");
         let  config: Config = match confy::load("wallsd", Some("config")) {
             Ok(config) => config,
             Err(e) => {
@@ -16,6 +17,8 @@ impl Config {
                 panic!("Unable to load config!");
             }
         };
+
+        tracing::info!("Loaded config");
 
         Config {
             wallpaper_collection: config.wallpaper_collection,

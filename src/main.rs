@@ -1,11 +1,10 @@
 use std::sync::mpsc;
 use std::{thread, time::{Duration, Instant}};
 use chrono::Local;
-use tracing::Level;
-use tracing_subscriber::FmtSubscriber;
 use futures::executor::block_on;
 use crate::output::Output;
 
+mod logging;
 mod config;
 mod command;
 mod mode;
@@ -20,30 +19,16 @@ mod collection;
 
 #[async_std::main]
 async fn main() {
-    tracing::info!("wallsd started");
 
-    let log_path = shellexpand::tilde("~/.local/state/walls").into_owned();
-    println!("Log path: {}", log_path);
-    let file_appender = tracing_appender::rolling::hourly(log_path, "wallsd.log");
-    let subscriber = FmtSubscriber::builder()
-        .with_max_level(Level::TRACE)
-        .with_writer(file_appender)
-        .finish();
+    logging::init();
 
-    tracing::subscriber::set_global_default(subscriber)
-        .expect("setting default subscriber failed");
-
-    tracing::info!("Loading config");
     let config = config::Config::load_config();
-    tracing::info!("Loaded config");
 
     let (tx, rx) = mpsc::channel::<String>();
 
-    tracing::info!("Loading outputs");
     let mut outputs = swaymsg::get_outputs();
-    tracing::info!("Loaded outputs");
-
     tracing::debug!("Found outputs: {:#?}", outputs);
+    tracing::info!("Loaded outputs");
 
     tracing::info!("Loading Wallpaper collection");
     let mut collection: collection::Collection = collection::Collection {

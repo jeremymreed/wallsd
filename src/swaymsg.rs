@@ -5,6 +5,8 @@ use crate::output;
 use crate::collection::Collection;
 
 pub fn get_outputs() -> Vec<output::Output>{
+    tracing::info!("Getting outputs");
+
     let output = Command::new("swaymsg")
         .arg("-r")
         .arg("-t")
