@@ -30,15 +30,11 @@ async fn main() {
     tracing::debug!("Found outputs: {:#?}", outputs);
     tracing::info!("Loaded outputs");
 
-    tracing::info!("Loading Wallpaper collection");
     let mut collection: collection::Collection = collection::Collection {
         collection: Vec::new(),
     };
 
-    collection.scan_collection(&config.wallpaper_collection);
-
-    tracing::debug!("Number of wallpapers: {}", collection.collection.len());
-    tracing::info!("Loaded Wallpaper collection");
+    collection.scan_collection(&config.default_wallpaper_collection);
 
     for output in &mut outputs {
         output.images = collection.collection.clone();
