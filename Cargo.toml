@@ -11,6 +11,7 @@ chrono = "0.4.35"
 confy = "0.6.1"
 event-listener = "5.2.0"
 futures = "0.3.30"
+image = { version = "0.25.1", features = ["webp"] }
 json = "0.12.4"
 rand = "0.8.5"
 serde = { version = "1.0.197", features = ["derive"] }
