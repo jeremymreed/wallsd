@@ -34,5 +34,9 @@ fn process_output(raw_output: &String) -> Vec<output::Output> {
         outputs.push(output);
     }
 
+    if outputs.is_empty() {
+        panic!("No outputs found");
+    }
+
     outputs
 }
