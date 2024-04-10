@@ -6,6 +6,7 @@ pub struct Profiler {
 
 impl Profiler {
     pub fn start() -> Profiler {
+        tracing::trace!("Starting Profiler");
         Profiler {
             start_time: Instant::now(),
         }
