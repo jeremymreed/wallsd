@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct Config {
-    pub wallpaper_collection: String,
+    pub default_wallpaper_collection: String,
     pub oncalendar_string: String,
 }
 
@@ -20,7 +20,7 @@ impl Config {
         tracing::info!("Loaded config");
 
         Config {
-            wallpaper_collection: config.wallpaper_collection,
+            default_wallpaper_collection: config.default_wallpaper_collection,
             oncalendar_string: config.oncalendar_string,
         }
     }
