@@ -1,5 +1,7 @@
 use std::fs;
 
+use crate::image_verification;
+
 #[derive(Debug, Clone)]
 pub struct Collection {
     pub collection: Vec<String>,
@@ -30,7 +32,11 @@ impl Collection {
     }
 
     pub fn process_file(&mut self, absolute_path: &String) {
-        self.collection.push(absolute_path.clone());
+        if image_verification::is_supported_format(absolute_path) {
+            self.collection.push(absolute_path.clone());
+        } else {
+            tracing::warn!("{}: Unsupported image format", absolute_path);
+        }
     }
 
     pub fn process_directory(&mut self, absolute_path: &String) {

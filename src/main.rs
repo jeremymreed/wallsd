@@ -4,6 +4,7 @@ use chrono::Local;
 //use futures::executor::block_on;
 //use crate::output::Output;
 
+mod image_verification;
 mod profiler;
 mod logging;
 mod config;
