@@ -1,9 +1,10 @@
 use std::sync::mpsc;
-use std::{thread, time::{Duration, Instant}};
+use std::{thread, time::Duration};
 use chrono::Local;
 //use futures::executor::block_on;
 //use crate::output::Output;
 
+mod profiler;
 mod logging;
 mod config;
 mod command;
@@ -55,7 +56,7 @@ async fn main() {
 
     tracing::info!("Starting main loop");
     loop {
-        let now = Instant::now();
+        let ghetto_profiler = profiler::Profiler::start();
 
         let current_time = Local::now();
 
@@ -74,9 +75,7 @@ async fn main() {
             target = systemd_analyze::get_next_event(&config.oncalendar_string);
         }
 
-        let elapsed = now.elapsed();
-        tracing::trace!("Elapsed time: {:#?}\n\n", elapsed);
-
+        ghetto_profiler.stop();
 
         thread::sleep(sleep_duration);
     }
