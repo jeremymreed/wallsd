@@ -8,7 +8,10 @@ pub struct Collection {
 impl Collection {
     /* TODO: Note that we are not checking each file to be sure it's an image, nor are we checking the resolutions. */
     pub fn scan_collection(&mut self, absolute_path: &String) {
+        tracing::info!("Scanning collection: {}", absolute_path);
         self.process(absolute_path);
+        tracing::info!("Number of Wallpapers: {}", self.collection.len());
+        tracing::info!("Scanned collection.");
     }
 
     pub fn process(&mut self, absolute_path: &String) {
