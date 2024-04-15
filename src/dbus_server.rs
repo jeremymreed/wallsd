@@ -3,6 +3,7 @@ use zbus::{connection::Builder, interface, Result};
 use zvariant::Type;
 use serde::{Deserialize, Serialize};
 use event_listener::{Event, Listener};
+use crate::command;
 use crate::collection;
 use crate::swww;
 
@@ -28,6 +29,10 @@ impl DbusServer {
 
     async fn test(&self, point: Point) {
         tracing::debug!("test called with point: {:#?}", point);
+    }
+
+    async fn command(&self, command: command::Command) {
+        tracing::debug!("command called with command: {:#?}", command);
     }
 }
 

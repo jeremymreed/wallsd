@@ -1,7 +1,7 @@
 use std::sync::mpsc;
 use std::{thread, time::Duration};
 use chrono::Local;
-//use futures::executor::block_on;
+use futures::executor::block_on;
 //use crate::output::Output;
 
 mod image_verification;
@@ -42,12 +42,10 @@ async fn main() {
         output.images = collection.collection.clone();
     }
 
-    /*
     thread::spawn(|| {
-        debug!("Starting dbus server");
+        tracing::info!("Starting dbus server");
         let _ = block_on(dbus_server::run_server(tx));
     });
-    */
 
     let sleep_duration = Duration::from_secs(1);
 

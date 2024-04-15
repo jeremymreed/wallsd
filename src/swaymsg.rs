@@ -28,7 +28,7 @@ fn process_output(raw_output: &String) -> Vec<output::Output> {
                 width: json_output[index]["rect"]["width"].as_u32().unwrap(),
                 height: json_output[index]["rect"]["height"].as_u32().unwrap(),
             },
-            mode: mode::Mode::ONESHOT,
+            mode: mode::Mode::Oneshot,
             images: Vec::new(),
         };
         outputs.push(output);
