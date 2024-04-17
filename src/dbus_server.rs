@@ -34,6 +34,10 @@ impl DbusServer {
     async fn command(&self, command: command::Command) {
         tracing::debug!("command called with command: {:#?}", command);
     }
+
+    async fn set_output_mode(&self, command: command::SetOutputModeCommand) {
+        tracing::debug!("set_output_mode called with command: {:#?}", command);
+    }
 }
 
 pub async fn run_server(tx: Sender<String>) -> Result<()> {
