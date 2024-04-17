@@ -29,6 +29,8 @@ fn process_output(raw_output: &String) -> Vec<output::Output> {
                 height: json_output[index]["rect"]["height"].as_u32().unwrap(),
             },
             mode: mode::Mode::Oneshot,
+            oncalendar_string: "*-*-* *:0/2".to_string(),
+            target_time: chrono::Local::now(),
             images: Vec::new(),
         };
         outputs.push(output);

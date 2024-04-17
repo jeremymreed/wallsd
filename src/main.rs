@@ -1,8 +1,9 @@
+use std::collections::HashMap;
 use std::sync::mpsc;
 use std::{thread, time::Duration};
 use chrono::Local;
 use futures::executor::block_on;
-//use crate::output::Output;
+use crate::output::Output;
 
 mod status;
 mod image_verification;
@@ -29,9 +30,15 @@ async fn main() {
 
     let (tx, rx) = mpsc::channel::<command::InternalCommand>();
 
-    let mut outputs = swaymsg::get_outputs();
+    let outputs = swaymsg::get_outputs();
     tracing::debug!("Found outputs: {:#?}", outputs);
     tracing::info!("Loaded outputs");
+
+    let mut outputs_map: HashMap<String, Output> = HashMap::new();
+
+    for output in &outputs {
+        outputs_map.insert(output.name.clone(), output.clone());
+    }
 
     let mut collection: collection::Collection = collection::Collection {
         collection: Vec::new(),
@@ -39,7 +46,7 @@ async fn main() {
 
     collection.scan_collection(&config.default_wallpaper_collection);
 
-    for output in &mut outputs {
+    for output in outputs_map.values_mut() {
         output.images = collection.collection.clone();
     }
 
@@ -52,7 +59,13 @@ async fn main() {
 
     tracing::debug!("oncalendar_string: {:?}", config.oncalendar_string);
 
-    let mut target  = systemd_analyze::get_next_event(&config.oncalendar_string);
+    outputs_map.get_mut("HDMI-A-1").unwrap().oncalendar_string = String::from("*-*-* *:0/2");
+    outputs_map.get_mut("eDP-1").unwrap().oncalendar_string = String::from("*-*-* *:0/1");
+
+    for output in outputs_map.values_mut() {
+        //output.oncalendar_string = config.oncalendar_string.clone();
+        output.target_time = systemd_analyze::get_next_event(&output.oncalendar_string);
+    }
 
     tracing::info!("Starting main loop");
     loop {
@@ -75,13 +88,13 @@ async fn main() {
             Err(_) => tracing::debug!("No message"),
         };
 
-        // Check to see if the timer should be fired.
-        if on_calendar::is_time_after_target(target, current_time) {
-            tracing::debug!("******  TIMER FIRED *******");
-            for output in &outputs {
+        for output in outputs_map.values_mut() {
+            // Check to see if the timer should be fired.
+            if on_calendar::is_time_after_target(output.target_time, current_time) {
+                tracing::debug!("******  TIMER FIRED *******");
                 swww::set_wallpaper(output);
+                output.target_time = systemd_analyze::get_next_event(&output.oncalendar_string);
             }
-            target = systemd_analyze::get_next_event(&config.oncalendar_string);
         }
 
         ghetto_profiler.stop();
