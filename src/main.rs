@@ -4,6 +4,7 @@ use std::{thread, time::Duration};
 use chrono::Local;
 use futures::executor::block_on;
 use crate::output::Output;
+use crate::mode::Mode;
 
 mod status;
 mod image_verification;
@@ -79,6 +80,8 @@ async fn main() {
                 match message {
                     command::InternalCommand::SetOutputModeCommand(command) => {
                         tracing::debug!("Recieved SetOutputModeCommand: {:#?}", command);
+                        let output = outputs_map.get_mut(&command.output).unwrap();
+                        output.mode = command.mode;
                     },
                     _ => {
                         tracing::debug!("Recieved unknown command!");
@@ -89,12 +92,16 @@ async fn main() {
         };
 
         for output in outputs_map.values_mut() {
+            tracing::debug!("Checking output: {:#?}", output.name);
             // Check to see if the timer should be fired.
-            if on_calendar::is_time_after_target(output.target_time, current_time) {
+            if output.mode == Mode::Slideshow && on_calendar::is_time_after_target(output.target_time, current_time) {
                 tracing::debug!("******  TIMER FIRED *******");
                 swww::set_wallpaper(output);
                 output.target_time = systemd_analyze::get_next_event(&output.oncalendar_string);
+            } else if output.mode == Mode::Oneshot {
+                tracing::debug!("******  ONESHOT MODE *******");
             }
+            tracing::debug!("Done checking output");
         }
 
         ghetto_profiler.stop();
