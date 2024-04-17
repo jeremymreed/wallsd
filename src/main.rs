@@ -27,7 +27,7 @@ async fn main() {
 
     let config = config::Config::load_config();
 
-    let (tx, rx) = mpsc::channel::<String>();
+    let (tx, rx) = mpsc::channel::<command::InternalCommand>();
 
     let mut outputs = swaymsg::get_outputs();
     tracing::debug!("Found outputs: {:#?}", outputs);
@@ -62,7 +62,16 @@ async fn main() {
 
         tracing::trace!("Checking for dbus events!");
         match rx.try_recv() {
-            Ok(message) => tracing::debug!("Got message: {}", message),
+            Ok(message) => {
+                match message {
+                    command::InternalCommand::SetOutputModeCommand(command) => {
+                        tracing::debug!("Recieved SetOutputModeCommand: {:#?}", command);
+                    },
+                    _ => {
+                        tracing::debug!("Recieved unknown command!");
+                    }
+                }
+            },
             Err(_) => tracing::debug!("No message"),
         };
 

@@ -4,6 +4,7 @@ use zvariant::Type;
 use serde::{Deserialize, Serialize};
 use event_listener::{Event, Listener};
 use crate::command;
+use crate::status::Status;
 use crate::collection;
 use crate::swww;
 
@@ -14,33 +15,25 @@ struct Point {
 }
 
 struct DbusServer {
-    tx: Sender<String>,
+    tx: Sender<command::InternalCommand>,
     done: Event,
 }
 
 #[interface(name = "com.thetechforest.WallsD")]
 impl DbusServer {
-    async fn say_hello(&self, name: &str) -> String {
-        self.tx.send(String::from("Foo Bar")).unwrap();
-
-        tracing::debug!("say_hello called with name: {}", name);
-        format!("Hello, {}!", name)
-    }
-
-    async fn test(&self, point: Point) {
-        tracing::debug!("test called with point: {:#?}", point);
-    }
-
-    async fn command(&self, command: command::Command) {
-        tracing::debug!("command called with command: {:#?}", command);
-    }
-
-    async fn set_output_mode(&self, command: command::SetOutputModeCommand) {
+    async fn set_output_mode(&self, command: command::SetOutputModeCommand) -> command::SetOutputModeResponse {
         tracing::debug!("set_output_mode called with command: {:#?}", command);
+
+        self.tx.send(command::InternalCommand::SetOutputModeCommand(command)).unwrap();
+
+        command::SetOutputModeResponse {
+            status: Status::Success,
+            error: "".to_string(),
+        }
     }
 }
 
-pub async fn run_server(tx: Sender<String>) -> Result<()> {
+pub async fn run_server(tx: Sender<command::InternalCommand>) -> Result<()> {
 
     let dbus_server = DbusServer {
         tx,
