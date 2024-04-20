@@ -1,10 +1,9 @@
-use std::collections::HashMap;
-use std::sync::mpsc;
 use std::{thread, time::Duration};
+use std::sync::mpsc;
 use chrono::Local;
 use futures::executor::block_on;
+use crate::command::InternalCommand;
 use crate::state::State;
-use crate::output::Output;
 use crate::mode::Mode;
 
 mod state;
@@ -29,6 +28,8 @@ async fn main() {
 
     logging::init();
 
+    let (tx, rx) = mpsc::channel::<InternalCommand>();
+
     let mut state = State::new();
 
     swaymsg::get_outputs(&mut state);
@@ -47,13 +48,14 @@ async fn main() {
 
     thread::spawn(|| {
         tracing::info!("Starting dbus server");
-        let _ = block_on(dbus_server::run_server(state.tx));
+        let _ = block_on(dbus_server::run_server(tx));
     });
 
     let sleep_duration = Duration::from_secs(1);
 
     tracing::debug!("oncalendar_string: {:?}", state.config.oncalendar_string);
 
+    // Tempory hack.
     state.outputs.get_mut("HDMI-A-1").unwrap().oncalendar_string = String::from("*-*-* *:0/2");
     state.outputs.get_mut("eDP-1").unwrap().oncalendar_string = String::from("*-*-* *:0/1");
 
@@ -69,13 +71,12 @@ async fn main() {
         let current_time = Local::now();
 
         tracing::trace!("Checking for dbus events!");
-        match state.rx.try_recv() {
+        match rx.try_recv() {
             Ok(message) => {
                 match message {
                     command::InternalCommand::SetOutputModeCommand(command) => {
                         tracing::debug!("Recieved SetOutputModeCommand: {:#?}", command);
-                        let output = state.outputs.get_mut(&command.output).unwrap();
-                        output.mode = command.mode;
+                        state.set_mode(&command.output, command.mode);
                     },
                     _ => {
                         tracing::debug!("Recieved unknown command!");
@@ -88,13 +89,20 @@ async fn main() {
         for output in state.outputs.values_mut() {
             tracing::debug!("Checking output: {:#?}", output.name);
             // Check to see if the timer should be fired.
-            if output.mode == Mode::Slideshow && on_calendar::is_time_after_target(output.target_time, current_time) {
-                tracing::debug!("******  TIMER FIRED *******");
-                swww::set_wallpaper(output);
-                output.target_time = systemd_analyze::get_next_event(&output.oncalendar_string);
-            } else if output.mode == Mode::Oneshot {
-                tracing::debug!("******  ONESHOT MODE *******");
+            match output.mode {
+                Mode::Slideshow => {
+                    tracing::debug!("******  SLIDESHOW MODE *******");
+                    if on_calendar::is_time_after_target(output.target_time, current_time) {
+                        tracing::debug!("******  TIMER FIRED *******");
+                        swww::set_wallpaper(output);
+                        output.target_time = systemd_analyze::get_next_event(&output.oncalendar_string);
+                    }
+                },
+                Mode::Oneshot => {
+                    tracing::debug!("******  ONESHOT MODE *******");
+                },
             }
+
             tracing::debug!("Done checking output");
         }
 
