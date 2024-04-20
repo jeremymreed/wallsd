@@ -4,8 +4,10 @@ use chrono::Local;
 use futures::executor::block_on;
 use crate::command::InternalCommand;
 use crate::state::State;
+use crate::executor::Executor;
 use crate::mode::Mode;
 
+mod executor;
 mod state;
 mod status;
 mod image_verification;
@@ -26,25 +28,11 @@ mod collection;
 #[async_std::main]
 async fn main() {
 
-    logging::init();
+    let mut executor = Executor::new();
+
+    executor.init();
 
     let (tx, rx) = mpsc::channel::<InternalCommand>();
-
-    let mut state = State::new();
-
-    swaymsg::get_outputs(&mut state);
-    tracing::debug!("Found outputs: {:#?}", state.outputs);
-    tracing::info!("Loaded outputs");
-
-    let mut collection: collection::Collection = collection::Collection {
-        collection: Vec::new(),
-    };
-
-    collection.scan_collection(&state.config.default_wallpaper_collection);
-
-    for output in state.outputs.values_mut() {
-        output.images = collection.collection.clone();
-    }
 
     thread::spawn(|| {
         tracing::info!("Starting dbus server");
@@ -52,17 +40,6 @@ async fn main() {
     });
 
     let sleep_duration = Duration::from_secs(1);
-
-    tracing::debug!("oncalendar_string: {:?}", state.config.oncalendar_string);
-
-    // Tempory hack.
-    state.outputs.get_mut("HDMI-A-1").unwrap().oncalendar_string = String::from("*-*-* *:0/2");
-    state.outputs.get_mut("eDP-1").unwrap().oncalendar_string = String::from("*-*-* *:0/1");
-
-    for output in state.outputs.values_mut() {
-        //output.oncalendar_string = config.oncalendar_string.clone();
-        output.target_time = systemd_analyze::get_next_event(&output.oncalendar_string);
-    }
 
     tracing::info!("Starting main loop");
     loop {
@@ -76,7 +53,7 @@ async fn main() {
                 match message {
                     command::InternalCommand::SetOutputModeCommand(command) => {
                         tracing::debug!("Recieved SetOutputModeCommand: {:#?}", command);
-                        state.set_mode(&command.output, command.mode);
+                        executor.state.set_mode(&command.output, command.mode);
                     },
                     _ => {
                         tracing::debug!("Recieved unknown command!");
@@ -86,7 +63,7 @@ async fn main() {
             Err(_) => tracing::debug!("No message"),
         };
 
-        for output in state.outputs.values_mut() {
+        for output in executor.state.outputs.values_mut() {
             tracing::debug!("Checking output: {:#?}", output.name);
             // Check to see if the timer should be fired.
             match output.mode {
