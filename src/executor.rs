@@ -1,4 +1,5 @@
 use crate::logging;
+use crate::command;
 use crate::state::State;
 use crate::swaymsg;
 use crate::collection;
@@ -41,6 +42,18 @@ impl Executor {
         for output in self.state.outputs.values_mut() {
             //output.oncalendar_string = config.oncalendar_string.clone();
             output.target_time = systemd_analyze::get_next_event(&output.oncalendar_string);
+        }
+    }
+
+    pub fn poll_dbus_messages(&mut self, message: command::InternalCommand) {
+        match message {
+            command::InternalCommand::SetOutputModeCommand(command) => {
+                tracing::debug!("Recieved SetOutputModeCommand: {:#?}", command);
+                self.state.set_mode(&command.output, command.mode);
+            },
+            _ => {
+                tracing::debug!("Recieved unknown command!");
+            }
         }
     }
 }

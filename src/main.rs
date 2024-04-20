@@ -3,7 +3,6 @@ use std::sync::mpsc;
 use chrono::Local;
 use futures::executor::block_on;
 use crate::command::InternalCommand;
-use crate::state::State;
 use crate::executor::Executor;
 use crate::mode::Mode;
 
@@ -50,15 +49,7 @@ async fn main() {
         tracing::trace!("Checking for dbus events!");
         match rx.try_recv() {
             Ok(message) => {
-                match message {
-                    command::InternalCommand::SetOutputModeCommand(command) => {
-                        tracing::debug!("Recieved SetOutputModeCommand: {:#?}", command);
-                        executor.state.set_mode(&command.output, command.mode);
-                    },
-                    _ => {
-                        tracing::debug!("Recieved unknown command!");
-                    }
-                }
+                executor.poll_dbus_messages(message);
             },
             Err(_) => tracing::debug!("No message"),
         };
