@@ -6,7 +6,7 @@ use crate::status;
 // Hack to get around the restriction on single types for the mpsc channels we're using for internal communication.
 pub enum InternalCommand {
     SetOutputModeCommand(SetOutputModeCommand),
-    SetOutputModeResponse(SetOutputModeResponse)
+    SetOutputModeResponse(SetOutputModeResponse),
 }
 
 #[derive(Serialize, Deserialize, Type, Debug)]
