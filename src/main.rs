@@ -1,5 +1,5 @@
 use std::{thread, time::Duration};
-use std::sync::mpsc;
+use async_std::channel::unbounded;
 use chrono::Local;
 use futures::executor::block_on;
 use crate::command::InternalCommand;
@@ -31,11 +31,11 @@ async fn main() {
 
     executor.init();
 
-    let (tx, rx) = mpsc::channel::<InternalCommand>();
+    let (sender, receiver) = unbounded::<InternalCommand>();
 
     thread::spawn(|| {
         tracing::info!("Starting dbus server");
-        let _ = block_on(dbus_server::run_server(tx));
+        let _ = block_on(dbus_server::run_server(sender));
     });
 
     let sleep_duration = Duration::from_secs(1);
@@ -47,7 +47,7 @@ async fn main() {
         let current_time = Local::now();
 
         tracing::trace!("Checking for dbus events!");
-        match rx.try_recv() {
+        match receiver.try_recv() {
             Ok(message) => {
                 let response = match executor.poll_dbus_messages(message) {
                     Ok(response) => response,

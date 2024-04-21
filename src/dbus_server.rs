@@ -1,4 +1,4 @@
-use std::sync::mpsc::Sender;
+use async_std::channel::Sender;
 use zbus::{connection::Builder, interface, Result};
 use zvariant::Type;
 use serde::{Deserialize, Serialize};
@@ -24,7 +24,14 @@ impl DbusServer {
     async fn set_output_mode(&self, command: command::SetOutputModeCommand) -> command::SetOutputModeResponse {
         tracing::debug!("set_output_mode called with command: {:#?}", command);
 
-        self.tx.send(command::InternalCommand::SetOutputModeCommand(command)).unwrap();
+        match self.tx.send(command::InternalCommand::SetOutputModeCommand(command)).await {
+            Ok(_) => (),
+            Err(error) => {
+                tracing::error!("Error sending message to executor: {:#?}", error);
+                // This is a fatal error, so we should probably exit.
+                panic!("Error sending message to executor: {:#?}", error);
+            }
+        }
 
         command::SetOutputModeResponse {
             status: Status::Success,
