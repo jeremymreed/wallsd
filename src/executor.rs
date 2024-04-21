@@ -1,7 +1,10 @@
 use crate::logging;
 use crate::command;
+use crate::on_calendar;
+use crate::mode::Mode;
 use crate::state::State;
 use crate::swaymsg;
+use crate::swww;
 use crate::collection;
 use crate::systemd_analyze;
 
@@ -45,15 +48,42 @@ impl Executor {
         }
     }
 
-    pub fn poll_dbus_messages(&mut self, message: command::InternalCommand) {
+    pub fn poll_dbus_messages(&mut self, message: command::InternalCommand) -> Result<command::InternalCommand, command::InternalCommand> {
         match message {
             command::InternalCommand::SetOutputModeCommand(command) => {
                 tracing::debug!("Recieved SetOutputModeCommand: {:#?}", command);
-                self.state.set_mode(&command.output, command.mode);
+                self.state.set_mode(&command.output, command.mode)
             },
             _ => {
                 tracing::debug!("Recieved unknown command!");
+                let response = command::GeneralResponse {
+                    status: crate::status::Status::Failure,
+                    error: "Unknown command".to_string(),
+                };
+                Err(command::InternalCommand::GeneralResponse(response))
             }
+        }
+    }
+
+    pub fn check_outputs(&mut self, current_time: chrono::DateTime<chrono::Local>) {
+        for output in self.state.outputs.values_mut() {
+            tracing::debug!("Checking output: {:#?}", output.name);
+            // Check to see if the timer should be fired.
+            match output.mode {
+                Mode::Slideshow => {
+                    tracing::debug!("******  SLIDESHOW MODE *******");
+                    if on_calendar::is_time_after_target(output.target_time, current_time) {
+                        tracing::debug!("******  TIMER FIRED *******");
+                        swww::set_wallpaper(output);
+                        output.target_time = systemd_analyze::get_next_event(&output.oncalendar_string);
+                    }
+                },
+                Mode::Oneshot => {
+                    tracing::debug!("******  ONESHOT MODE *******");
+                },
+            }
+
+            tracing::debug!("Done checking output");
         }
     }
 }

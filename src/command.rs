@@ -7,6 +7,7 @@ use crate::status;
 pub enum InternalCommand {
     SetOutputModeCommand(SetOutputModeCommand),
     SetOutputModeResponse(SetOutputModeResponse),
+    GeneralResponse(GeneralResponse),
 }
 
 #[derive(Serialize, Deserialize, Type, Debug)]
@@ -14,6 +15,12 @@ pub struct Command {
     mode: mode::Mode,
     outputs: Vec<String>,
     images: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Type, Debug)]
+pub struct GeneralResponse {
+    pub status: status::Status,
+    pub error: String,
 }
 
 #[derive(Serialize, Deserialize, Type, Debug)]

@@ -49,30 +49,15 @@ async fn main() {
         tracing::trace!("Checking for dbus events!");
         match rx.try_recv() {
             Ok(message) => {
-                executor.poll_dbus_messages(message);
+                let response = match executor.poll_dbus_messages(message) {
+                    Ok(response) => response,
+                    Err(response) => response,
+                };
             },
             Err(_) => tracing::debug!("No message"),
         };
 
-        for output in executor.state.outputs.values_mut() {
-            tracing::debug!("Checking output: {:#?}", output.name);
-            // Check to see if the timer should be fired.
-            match output.mode {
-                Mode::Slideshow => {
-                    tracing::debug!("******  SLIDESHOW MODE *******");
-                    if on_calendar::is_time_after_target(output.target_time, current_time) {
-                        tracing::debug!("******  TIMER FIRED *******");
-                        swww::set_wallpaper(output);
-                        output.target_time = systemd_analyze::get_next_event(&output.oncalendar_string);
-                    }
-                },
-                Mode::Oneshot => {
-                    tracing::debug!("******  ONESHOT MODE *******");
-                },
-            }
-
-            tracing::debug!("Done checking output");
-        }
+        executor.check_outputs(current_time);
 
         ghetto_profiler.stop();
 

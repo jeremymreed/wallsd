@@ -1,9 +1,9 @@
 use std::collections::HashMap;
-use std::sync::mpsc::{self, Sender, Receiver};
+use crate::status;
+use crate::command;
 use crate::output::Output;
 use crate::config::Config;
 use crate::mode;
-use crate::command::InternalCommand;
 
 // The program's current state.
 pub struct State {
@@ -19,9 +19,26 @@ impl State {
         }
     }
 
-    pub fn set_mode(&mut self, name: &String, mode: mode::Mode) {
-        let output = self.outputs.get_mut(name).unwrap();
+    pub fn set_mode(&mut self, name: &String, mode: mode::Mode) -> Result<command::InternalCommand, command::InternalCommand> {
+        match self.outputs.get_mut(name) {
+            Some(output) => {
+                output.mode = mode;
+                let response = command::SetOutputModeResponse {
+                    status: status::Status::Success,
+                    error: "".to_string(),
+                };
 
-        output.mode = mode;
+                Ok(command::InternalCommand::SetOutputModeResponse(response))
+            },
+            None => {
+                tracing::error!("Output {} not found", name);
+                let response = command::SetOutputModeResponse {
+                    status: status::Status::Failure,
+                    error: format!("Output {} not found", name),
+                };
+
+                Err(command::InternalCommand::SetOutputModeResponse(response))
+            }
+        }
     }
 }
