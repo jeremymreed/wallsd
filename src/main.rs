@@ -31,11 +31,11 @@ async fn main() {
 
     executor.init();
 
-    let (sender, receiver) = unbounded::<InternalCommand>();
+    let (sender_dbus, receiver_main) = unbounded::<InternalCommand>();
 
     thread::spawn(|| {
         tracing::info!("Starting dbus server");
-        let _ = block_on(dbus_server::run_server(sender));
+        let _ = block_on(dbus_server::run_server(sender_dbus));
     });
 
     let sleep_duration = Duration::from_secs(1);
@@ -47,7 +47,7 @@ async fn main() {
         let current_time = Local::now();
 
         tracing::trace!("Checking for dbus events!");
-        match receiver.try_recv() {
+        match receiver_main.try_recv() {
             Ok(message) => {
                 let response = match executor.poll_dbus_messages(message) {
                     Ok(response) => response,
