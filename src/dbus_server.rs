@@ -1,4 +1,4 @@
-use async_std::channel::Sender;
+use async_std::channel::{Sender, Receiver};
 use zbus::{connection::Builder, interface, Result};
 use zvariant::Type;
 use serde::{Deserialize, Serialize};
@@ -16,6 +16,7 @@ struct Point {
 
 struct DbusServer {
     tx: Sender<command::InternalCommand>,
+    rx: Receiver<command::InternalCommand>,
     done: Event,
 }
 
@@ -27,10 +28,28 @@ impl DbusServer {
         match self.tx.send(command::InternalCommand::SetOutputModeCommand(command)).await {
             Ok(_) => (),
             Err(error) => {
-                tracing::error!("Error sending message to executor: {:#?}", error);
+                tracing::error!("Error sending message to main thread: {:#?}", error);
                 // This is a fatal error, so we should probably exit.
-                panic!("Error sending message to executor: {:#?}", error);
+                panic!("Error sending message to main thread: {:#?}", error);
             }
+        }
+
+        match self.rx.recv_blocking() {
+            Ok(message) => {
+                match message {
+                    command::InternalCommand::SetOutputModeResponse(response) => {
+                        return response;
+                    },
+                    _ => {
+                        tracing::error!("Unexpected message received: {:#?}", message);
+                    },
+                }
+            },
+            Err(error) => {
+                tracing::error!("Error receiving message from main thread: {:#?}", error);
+                // This is a fatal error, so we should probably exit.
+                panic!("Error receiving message from main thread: {:#?}", error);
+            },
         }
 
         command::SetOutputModeResponse {
@@ -40,10 +59,11 @@ impl DbusServer {
     }
 }
 
-pub async fn run_server(tx: Sender<command::InternalCommand>) -> Result<()> {
+pub async fn run_server(tx: Sender<command::InternalCommand>, rx: Receiver<command::InternalCommand>) -> Result<()> {
 
     let dbus_server = DbusServer {
         tx,
+        rx,
         done: event_listener::Event::new(),
     };
 

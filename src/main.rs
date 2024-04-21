@@ -32,10 +32,11 @@ async fn main() {
     executor.init();
 
     let (sender_dbus, receiver_main) = unbounded::<InternalCommand>();
+    let (sender_main, receiver_dbus) = unbounded::<InternalCommand>();
 
     thread::spawn(|| {
         tracing::info!("Starting dbus server");
-        let _ = block_on(dbus_server::run_server(sender_dbus));
+        let _ = block_on(dbus_server::run_server(sender_dbus, receiver_dbus));
     });
 
     let sleep_duration = Duration::from_secs(1);
@@ -53,6 +54,15 @@ async fn main() {
                     Ok(response) => response,
                     Err(response) => response,
                 };
+
+                match sender_main.send(response).await {
+                    Ok(_) => {
+                        tracing::debug!("Sent response");
+                    },
+                    Err(error) => {
+                        tracing::error!("Error sending response: {:#?}", error);
+                    }
+                }
             },
             Err(_) => tracing::debug!("No message"),
         };
