@@ -85,6 +85,15 @@ impl DbusServer {
             },
         }
     }
+
+    async fn set_output_images(&self, command: command::SetOutputImagesCommand) -> command::GeneralResponse {
+        tracing::debug!("set_output_images called with command: {:#?}", command);
+
+        command::GeneralResponse {
+            status: Status::Failure,
+            error: "Unimplemented".to_string(),
+        }
+    }
 }
 
 pub async fn run_server(tx: Sender<command::InternalCommand>, rx: Receiver<command::InternalCommand>) -> Result<()> {
