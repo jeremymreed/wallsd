@@ -22,7 +22,7 @@ struct DbusServer {
 
 #[interface(name = "com.thetechforest.WallsD")]
 impl DbusServer {
-    async fn set_output_mode(&self, command: command::SetOutputModeCommand) -> command::SetOutputModeResponse {
+    async fn set_output_mode(&self, command: command::SetOutputModeCommand) -> command::GeneralResponse {
         tracing::debug!("set_output_mode called with command: {:#?}", command);
 
         match self.tx.send(command::InternalCommand::SetOutputModeCommand(command)).await {
@@ -37,7 +37,7 @@ impl DbusServer {
         match self.rx.recv_blocking() {
             Ok(message) => {
                 match message {
-                    command::InternalCommand::SetOutputModeResponse(response) => {
+                    command::InternalCommand::GeneralResponse(response) => {
                         return response;
                     },
                     _ => {
@@ -52,7 +52,7 @@ impl DbusServer {
             },
         }
 
-        command::SetOutputModeResponse {
+        command::GeneralResponse {
             status: Status::Success,
             error: "".to_string(),
         }

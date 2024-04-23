@@ -23,21 +23,21 @@ impl State {
         match self.outputs.get_mut(name) {
             Some(output) => {
                 output.mode = mode;
-                let response = command::SetOutputModeResponse {
+                let response = command::GeneralResponse {
                     status: status::Status::Success,
                     error: "".to_string(),
                 };
 
-                Ok(command::InternalCommand::SetOutputModeResponse(response))
+                Ok(command::InternalCommand::GeneralResponse(response))
             },
             None => {
                 tracing::error!("Output {} not found", name);
-                let response = command::SetOutputModeResponse {
+                let response = command::GeneralResponse {
                     status: status::Status::Failure,
                     error: format!("Output {} not found", name),
                 };
 
-                Err(command::InternalCommand::SetOutputModeResponse(response))
+                Err(command::InternalCommand::GeneralResponse(response))
             }
         }
     }

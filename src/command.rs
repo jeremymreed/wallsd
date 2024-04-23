@@ -7,7 +7,6 @@ use crate::status;
 #[derive(Debug)]
 pub enum InternalCommand {
     SetOutputModeCommand(SetOutputModeCommand),
-    SetOutputModeResponse(SetOutputModeResponse),
     GeneralResponse(GeneralResponse),
 }
 
@@ -28,10 +27,4 @@ pub struct GeneralResponse {
 pub struct SetOutputModeCommand {
     pub output: String,
     pub mode: mode::Mode,
-}
-
-#[derive(Serialize, Deserialize, Type, Debug)]
-pub struct SetOutputModeResponse {
-    pub status: status::Status,
-    pub error: String,
 }
