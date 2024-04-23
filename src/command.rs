@@ -7,6 +7,7 @@ use crate::status;
 #[derive(Debug)]
 pub enum InternalCommand {
     SetOutputModeCommand(SetOutputModeCommand),
+    SetOutputOncalendarCommand(SetOutputOncalendarCommand),
     GeneralResponse(GeneralResponse),
 }
 
@@ -27,4 +28,10 @@ pub struct GeneralResponse {
 pub struct SetOutputModeCommand {
     pub output: String,
     pub mode: mode::Mode,
+}
+
+#[derive(Serialize, Deserialize, Type, Debug)]
+pub struct SetOutputOncalendarCommand {
+    pub output: String,
+    pub oncalendar: String,
 }
