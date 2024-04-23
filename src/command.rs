@@ -8,6 +8,7 @@ use crate::status;
 pub enum InternalCommand {
     SetOutputModeCommand(SetOutputModeCommand),
     SetOutputOncalendarCommand(SetOutputOncalendarCommand),
+    SetOutputImagesCommand(SetOutputImagesCommand),
     GeneralResponse(GeneralResponse),
 }
 
@@ -34,4 +35,10 @@ pub struct SetOutputModeCommand {
 pub struct SetOutputOncalendarCommand {
     pub output: String,
     pub oncalendar: String,
+}
+
+#[derive(Serialize, Deserialize, Type, Debug)]
+pub struct SetOutputImagesCommand {
+    pub output: String,
+    pub images: Vec<String>,
 }
