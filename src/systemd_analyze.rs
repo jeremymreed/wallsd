@@ -1,10 +1,11 @@
 use std::process::Command;
+use std::error::Error;
 use std::time;
 use chrono::{DateTime, Local};
 
 // Use systemd-timer OnCalendar syntax.
 // See: https://man.archlinux.org/man/systemd.time.7 or 'man 7 systemd.timer'.
-pub fn get_next_event(oncalendar_string: &String) -> DateTime<Local> {
+pub fn get_next_event(oncalendar_string: &String) -> Result<DateTime<Local>, String> {
     tracing::debug!("Getting next event datetime string");
     let now = time::Instant::now();
 
@@ -12,19 +13,28 @@ pub fn get_next_event(oncalendar_string: &String) -> DateTime<Local> {
         .arg("calendar")
         .arg(oncalendar_string)
         .output()
-        .expect("failed to execute process");
+        .expect("Failed to execute systemd-analyze calendar command");
 
     //tracing::tracing::debug!("output: ${:?}", output);
     let elapsed = now.elapsed();
     tracing::debug!("Elapsed time: {:#?}", elapsed);
 
-    let next_event: DateTime<Local> = process_output(&String::from_utf8_lossy(&output.stdout).to_string());
+    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
 
-    next_event
+    if stderr.is_empty() {
+
+        let next_event: DateTime<Local> = process_output(&stdout);
+
+        Ok(next_event)
+    } else {
+        tracing::error!("Error: {:#?}", stderr);
+        Err(format!("Error {:#?}", stderr))
+    }
 }
 
 fn process_output(raw_output: &String) -> DateTime<Local> {
-    tracing::debug!("{:?}", raw_output);
+    tracing::debug!("raw_output: {:?}", raw_output);
 
     let next_event = parse_raw_output(raw_output);
 
@@ -43,6 +53,8 @@ fn process_output(raw_output: &String) -> DateTime<Local> {
 fn parse_raw_output(raw_output: &str) -> String {
     let lines = raw_output.lines();
     let mut raw_next_event: String = String::new();
+    tracing::debug!("lines: {:?}", lines);
+
     for line in lines {
         if line.contains("Next elapse: ") {
             raw_next_event = line.to_string();

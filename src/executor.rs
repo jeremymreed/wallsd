@@ -44,7 +44,13 @@ impl Executor {
 
         for output in self.state.outputs.values_mut() {
             //output.oncalendar_string = config.oncalendar_string.clone();
-            output.target_time = systemd_analyze::get_next_event(&output.oncalendar_string);
+            output.target_time = match systemd_analyze::get_next_event(&output.oncalendar_string) {
+                Ok(time) => time,
+                Err(_) => {
+                    tracing::error!("Failed to get next event for output: {:#?}", output.name);
+                    panic!("Failed to get next event for output: {:#?}", output.name);
+                },
+            };
         }
     }
 
@@ -75,7 +81,13 @@ impl Executor {
                     if on_calendar::is_time_after_target(output.target_time, current_time) {
                         tracing::debug!("******  TIMER FIRED *******");
                         swww::set_wallpaper(output);
-                        output.target_time = systemd_analyze::get_next_event(&output.oncalendar_string);
+                        output.target_time = match systemd_analyze::get_next_event(&output.oncalendar_string) {
+                            Ok(time) => time,
+                            Err(_) => {
+                                tracing::error!("Failed to get next event for output: {:#?}", output.name);
+                                panic!("Failed to get next event for output: {:#?}", output.name);
+                            },
+                        };
                     }
                 },
                 Mode::Oneshot => {
