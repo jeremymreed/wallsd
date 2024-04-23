@@ -38,10 +38,11 @@ impl DbusServer {
             Ok(message) => {
                 match message {
                     command::InternalCommand::GeneralResponse(response) => {
-                        return response;
+                        response
                     },
                     _ => {
                         tracing::error!("Unexpected message received: {:#?}", message);
+                        panic!("Unexpected message received: {:#?}", message);
                     },
                 }
             },
@@ -50,11 +51,6 @@ impl DbusServer {
                 // This is a fatal error, so we should probably exit.
                 panic!("Error receiving message from main thread: {:#?}", error);
             },
-        }
-
-        command::GeneralResponse {
-            status: Status::Success,
-            error: "".to_string(),
         }
     }
 }
