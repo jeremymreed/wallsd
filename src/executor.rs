@@ -60,6 +60,11 @@ impl Executor {
                 tracing::debug!("Recieved SetOutputModeCommand: {:#?}", command);
                 self.state.set_mode(&command.output, command.mode)
             },
+            command::InternalCommand::SetOutputOncalendarCommand(command) => {
+                tracing::debug!("Recieved SetOutputOncalendarCommand: {:#?}", command);
+
+                self.state.set_oncalendar(&command.output, command.oncalendar)
+            }
             _ => {
                 tracing::debug!("Recieved unknown command!");
                 let response = command::GeneralResponse {

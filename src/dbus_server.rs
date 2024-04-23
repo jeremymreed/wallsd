@@ -57,9 +57,32 @@ impl DbusServer {
     async fn set_output_oncalendar(&self, command: command::SetOutputOncalendarCommand) -> command::GeneralResponse {
         tracing::debug!("set_output_oncalendar called with command: {:#?}", command);
 
-        command::GeneralResponse {
-            status: Status::Failure,
-            error: "Not implemented".to_string(),
+        match self.tx.send(command::InternalCommand::SetOutputOncalendarCommand(command)).await {
+            Ok(_) => (),
+            Err(error) => {
+                tracing::error!("Error sending message to main thread: {:#?}", error);
+                // This is a fatal error, so we should probably exit.
+                panic!("Error sending message to main thread: {:#?}", error);
+            }
+        }
+
+        match self.rx.recv_blocking() {
+            Ok(message) => {
+                match message {
+                    command::InternalCommand::GeneralResponse(response) => {
+                        response
+                    },
+                    _ => {
+                        tracing::error!("Unexpected message received: {:#?}", message);
+                        panic!("Unexpected message received: {:#?}", message);
+                    },
+                }
+            },
+            Err(error) => {
+                tracing::error!("Error receiving message from main thread: {:#?}", error);
+                // This is a fatal error, so we should probably exit.
+                panic!("Error receiving message from main thread: {:#?}", error);
+            },
         }
     }
 }
