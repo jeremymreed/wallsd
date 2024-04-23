@@ -53,6 +53,15 @@ impl DbusServer {
             },
         }
     }
+
+    async fn set_output_oncalendar(&self, command: command::SetOutputOncalendarCommand) -> command::GeneralResponse {
+        tracing::debug!("set_output_oncalendar called with command: {:#?}", command);
+
+        command::GeneralResponse {
+            status: Status::Failure,
+            error: "Not implemented".to_string(),
+        }
+    }
 }
 
 pub async fn run_server(tx: Sender<command::InternalCommand>, rx: Receiver<command::InternalCommand>) -> Result<()> {
