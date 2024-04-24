@@ -5,6 +5,7 @@ use crate::command;
 use crate::output::Output;
 use crate::config::Config;
 use crate::mode;
+use crate::collection;
 
 // The program's current state.
 pub struct State {
@@ -67,6 +68,39 @@ impl State {
                 };
 
                 Ok(command::InternalCommand::GeneralResponse(response))
+            },
+            None => {
+                tracing::error!("Output {} not found", name);
+                let response = command::GeneralResponse {
+                    status: status::Status::Failure,
+                    error: format!("Output {} not found", name),
+                };
+
+                Err(command::InternalCommand::GeneralResponse(response))
+            }
+        }
+    }
+
+    pub fn set_images(&mut self, name: &String, images: Vec<String>) -> Result<command::InternalCommand, command::InternalCommand> {
+        tracing::debug!("set_images called");
+
+        match self.outputs.get_mut(name) {
+            Some(output) => {
+                let mut collection = collection::Collection {
+                    collection: Vec::<String>::new(),
+                };
+
+                for image in images {
+                    collection.process(&image);
+                }
+
+                output.images.clear();
+                output.images = collection.collection.clone();
+
+                Ok(command::InternalCommand::GeneralResponse(command::GeneralResponse {
+                    status: status::Status::Success,
+                    error: "".to_string(),
+                }))
             },
             None => {
                 tracing::error!("Output {} not found", name);

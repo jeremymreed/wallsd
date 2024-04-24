@@ -4,9 +4,6 @@ use zvariant::Type;
 use serde::{Deserialize, Serialize};
 use event_listener::{Event, Listener};
 use crate::command;
-use crate::status::Status;
-use crate::collection;
-use crate::swww;
 
 #[derive(Serialize, Deserialize, Type, Debug)]
 struct Point {
@@ -89,9 +86,32 @@ impl DbusServer {
     async fn set_output_images(&self, command: command::SetOutputImagesCommand) -> command::GeneralResponse {
         tracing::debug!("set_output_images called with command: {:#?}", command);
 
-        command::GeneralResponse {
-            status: Status::Failure,
-            error: "Unimplemented".to_string(),
+        match self.tx.send(command::InternalCommand::SetOutputImagesCommand(command)).await {
+            Ok(_) => (),
+            Err(error) => {
+                tracing::error!("Error sending message to main thread: {:#?}", error);
+                // This is a fatal error, so we should probably exit.
+                panic!("Error sending message to main thread: {:#?}", error);
+            }
+        }
+
+        match self.rx.recv_blocking() {
+            Ok(message) => {
+                match message {
+                    command::InternalCommand::GeneralResponse(response) => {
+                        response
+                    },
+                    _ => {
+                        tracing::error!("Unexpected message received: {:#?}", message);
+                        panic!("Unexpected message received: {:#?}", message);
+                    },
+                }
+            },
+            Err(error) => {
+                tracing::error!("Error receiving message from main thread: {:#?}", error);
+                // This is a fatal error, so we should probably exit.
+                panic!("Error receiving message from main thread: {:#?}", error);
+            },
         }
     }
 }

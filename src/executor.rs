@@ -36,11 +36,13 @@ impl Executor {
             output.images = collection.collection.clone();
         }
 
+        collection.collection.clear();
+
         tracing::debug!("oncalendar_string: {:?}", self.state.config.oncalendar_string);
 
         // Tempory hack.
-        self.state.outputs.get_mut("HDMI-A-1").unwrap().oncalendar_string = String::from("*-*-* *:0/2");
-        self.state.outputs.get_mut("eDP-1").unwrap().oncalendar_string = String::from("*-*-* *:0/1");
+        self.state.outputs.get_mut("HDMI-A-1").unwrap().oncalendar_string = String::from("*-*-* *:*:0/30");
+        self.state.outputs.get_mut("eDP-1").unwrap().oncalendar_string = String::from("*-*-* *:*:0/15");
 
         for output in self.state.outputs.values_mut() {
             //output.oncalendar_string = config.oncalendar_string.clone();
@@ -65,6 +67,10 @@ impl Executor {
 
                 self.state.set_oncalendar(&command.output, command.oncalendar)
             }
+            command::InternalCommand::SetOutputImagesCommand(command) => {
+                tracing::debug!("Recieved SetOutputImagesCommand: {:#?}", command);
+                self.state.set_images(&command.output, command.images)
+            },
             _ => {
                 tracing::debug!("Recieved unknown command!");
                 let response = command::GeneralResponse {
@@ -83,6 +89,7 @@ impl Executor {
             match output.mode {
                 Mode::Slideshow => {
                     tracing::debug!("******  SLIDESHOW MODE *******");
+                    tracing::debug!("images.len(): {:#?}", output.images.len());
                     if on_calendar::is_time_after_target(output.target_time, current_time) {
                         tracing::debug!("******  TIMER FIRED *******");
                         swww::set_wallpaper(output);
