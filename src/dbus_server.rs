@@ -83,7 +83,7 @@ impl DbusServer {
         }
     }
 
-    async fn set_output_images(&self, command: command::SetOutputImagesCommand) -> command::GeneralResponse {
+    async fn set_output_images(&self, command: command::SetOutputImagesCommand) -> command::GeneralResponseErrorVec {
         tracing::debug!("set_output_images called with command: {:#?}", command);
 
         match self.tx.send(command::InternalCommand::SetOutputImagesCommand(command)).await {
@@ -98,7 +98,7 @@ impl DbusServer {
         match self.rx.recv_blocking() {
             Ok(message) => {
                 match message {
-                    command::InternalCommand::GeneralResponse(response) => {
+                    command::InternalCommand::GeneralResponseErrorVec(response) => {
                         response
                     },
                     _ => {

@@ -86,9 +86,7 @@ impl State {
 
         match self.outputs.get_mut(name) {
             Some(output) => {
-                let mut collection = collection::Collection {
-                    collection: Vec::<String>::new(),
-                };
+                let mut collection = collection::Collection::new();
 
                 for image in images {
                     collection.process(&image);
@@ -97,19 +95,19 @@ impl State {
                 output.images.clear();
                 output.images = collection.collection.clone();
 
-                Ok(command::InternalCommand::GeneralResponse(command::GeneralResponse {
+                Ok(command::InternalCommand::GeneralResponseErrorVec(command::GeneralResponseErrorVec {
                     status: status::Status::Success,
-                    error: "".to_string(),
+                    errors: collection.errors.clone(),
                 }))
             },
             None => {
                 tracing::error!("Output {} not found", name);
-                let response = command::GeneralResponse {
+                let response = command::GeneralResponseErrorVec {
                     status: status::Status::Failure,
-                    error: format!("Output {} not found", name),
+                    errors: vec![format!("Output {} not found", name)],
                 };
 
-                Err(command::InternalCommand::GeneralResponse(response))
+                Err(command::InternalCommand::GeneralResponseErrorVec(response))
             }
         }
     }

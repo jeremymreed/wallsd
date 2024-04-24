@@ -10,6 +10,7 @@ pub enum InternalCommand {
     SetOutputOncalendarCommand(SetOutputOncalendarCommand),
     SetOutputImagesCommand(SetOutputImagesCommand),
     GeneralResponse(GeneralResponse),
+    GeneralResponseErrorVec(GeneralResponseErrorVec),
 }
 
 #[derive(Serialize, Deserialize, Type, Debug)]
@@ -23,6 +24,12 @@ pub struct Command {
 pub struct GeneralResponse {
     pub status: status::Status,
     pub error: String,
+}
+
+#[derive(Serialize, Deserialize, Type, Debug)]
+pub struct GeneralResponseErrorVec {
+    pub status: status::Status,
+    pub errors: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Type, Debug)]

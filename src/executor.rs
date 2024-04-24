@@ -26,9 +26,7 @@ impl Executor {
         tracing::debug!("Found outputs: {:#?}", self.state.outputs);
         tracing::info!("Loaded outputs");
 
-        let mut collection: collection::Collection = collection::Collection {
-            collection: Vec::new(),
-        };
+        let mut collection: collection::Collection = collection::Collection::new();
 
         collection.scan_collection(&self.state.config.default_wallpaper_collection);
 
