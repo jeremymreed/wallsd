@@ -69,6 +69,10 @@ impl Executor {
                 tracing::debug!("Recieved SetOutputImagesCommand: {:#?}", command);
                 self.state.set_images(&command.output, command.images)
             },
+            command::InternalCommand::GetOutputsSettingsCommand => {
+                tracing::debug!("Recieved GetOutputsSettingsCommand");
+                self.state.get_outputs_settings()
+            },
             _ => {
                 tracing::debug!("Recieved unknown command!");
                 let response = command::GeneralResponse {

@@ -4,6 +4,7 @@ use zvariant::Type;
 use serde::{Deserialize, Serialize};
 use event_listener::{Event, Listener};
 use crate::command;
+use crate::status;
 
 #[derive(Serialize, Deserialize, Type, Debug)]
 struct Point {
@@ -99,6 +100,40 @@ impl DbusServer {
             Ok(message) => {
                 match message {
                     command::InternalCommand::GeneralResponseErrorVec(response) => {
+                        response
+                    },
+                    _ => {
+                        tracing::error!("Unexpected message received: {:#?}", message);
+                        panic!("Unexpected message received: {:#?}", message);
+                    },
+                }
+            },
+            Err(error) => {
+                tracing::error!("Error receiving message from main thread: {:#?}", error);
+                // This is a fatal error, so we should probably exit.
+                panic!("Error receiving message from main thread: {:#?}", error);
+            },
+        }
+    }
+
+    async fn get_outputs_settings(&self) -> command::GetOutputSettingsResponse {
+        tracing::debug!("get_outputs_settings called");
+
+        let internal_command = command::InternalCommand::GetOutputsSettingsCommand;
+
+        match self.tx.send(internal_command).await {
+            Ok(_) => (),
+            Err(error) => {
+                tracing::error!("Error sending message to main thread: {:#?}", error);
+                // This is a fatal error, so we should probably exit.
+                panic!("Error sending message to main thread: {:#?}", error);
+            }
+        }
+
+        match self.rx.recv_blocking() {
+            Ok(message) => {
+                match message {
+                    command::InternalCommand::GetOutputSettingsResponse(response) => {
                         response
                     },
                     _ => {

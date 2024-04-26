@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use crate::output_settings::OutputSettings;
 use crate::systemd_analyze;
 use crate::status;
 use crate::command;
@@ -110,5 +111,27 @@ impl State {
                 Err(command::InternalCommand::GeneralResponseErrorVec(response))
             }
         }
+    }
+
+    pub fn get_outputs_settings(&self) -> Result<command::InternalCommand, command::InternalCommand> {
+        tracing::debug!("get_outputs_settings called");
+
+        let mut outputs_settings = Vec::<OutputSettings>::new();
+
+        for output in self.outputs.values() {
+            outputs_settings.push(OutputSettings {
+                name: output.name.clone(),
+                mode: output.mode.clone(),
+                oncalendar: output.oncalendar_string.clone(),
+                current_wallpaper: String::from("This part isn't done yet."),
+                number_of_images: output.images.len() as u64,
+            });
+        }
+
+        Ok(command::InternalCommand::GetOutputSettingsResponse(command::GetOutputSettingsResponse {
+            status: status::Status::Success,
+            error: "".to_string(),
+            outputs_settings,
+        }))
     }
 }

@@ -2,6 +2,7 @@ use zvariant::Type;
 use serde::{Deserialize, Serialize};
 use crate::mode;
 use crate::status;
+use crate::output_settings::OutputSettings;
 
 // Hack to get around the restriction on single types for the mpsc channels we're using for internal communication.
 #[derive(Debug)]
@@ -9,8 +10,10 @@ pub enum InternalCommand {
     SetOutputModeCommand(SetOutputModeCommand),
     SetOutputOncalendarCommand(SetOutputOncalendarCommand),
     SetOutputImagesCommand(SetOutputImagesCommand),
+    GetOutputsSettingsCommand,
     GeneralResponse(GeneralResponse),
     GeneralResponseErrorVec(GeneralResponseErrorVec),
+    GetOutputSettingsResponse(GetOutputSettingsResponse),
 }
 
 #[derive(Serialize, Deserialize, Type, Debug)]
@@ -30,6 +33,13 @@ pub struct GeneralResponse {
 pub struct GeneralResponseErrorVec {
     pub status: status::Status,
     pub errors: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Type, Debug)]
+pub struct GetOutputSettingsResponse {
+    pub status: status::Status,
+    pub error: String,
+    pub outputs_settings: Vec<OutputSettings>,
 }
 
 #[derive(Serialize, Deserialize, Type, Debug)]

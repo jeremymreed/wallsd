@@ -6,6 +6,7 @@ use crate::command::InternalCommand;
 use crate::executor::Executor;
 use crate::mode::Mode;
 
+mod output_settings;
 mod executor;
 mod state;
 mod status;
