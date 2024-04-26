@@ -9,5 +9,6 @@ pub struct Output {
     pub mode: Mode,
     pub oncalendar_string: String,
     pub target_time: DateTime<Local>,
+    pub current_wallpaper: String,
     pub images: Vec<String>,
 }

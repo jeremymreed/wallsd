@@ -123,7 +123,7 @@ impl State {
                 name: output.name.clone(),
                 mode: output.mode.clone(),
                 oncalendar: output.oncalendar_string.clone(),
-                current_wallpaper: String::from("This part isn't done yet."),
+                current_wallpaper: output.current_wallpaper.clone(),
                 number_of_images: output.images.len() as u64,
             });
         }

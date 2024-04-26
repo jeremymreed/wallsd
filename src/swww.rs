@@ -2,7 +2,7 @@ use std::process::Command;
 use rand::Rng;
 use crate::output::Output;
 
-pub fn set_wallpaper(output: &Output) {
+pub fn set_wallpaper(output: &Output) -> String {
 
     if !output.images.is_empty() {
         let random_index = rand::thread_rng().gen_range(0..output.images.len());
@@ -22,7 +22,10 @@ pub fn set_wallpaper(output: &Output) {
         tracing::debug!("status: {}", swww_output.status);
         tracing::debug!("stdout: {}", String::from_utf8_lossy(&swww_output.stdout));
         tracing::debug!("stderr: {}", String::from_utf8_lossy(&swww_output.stderr));
+
+        random_wallpaper.to_owned()
     } else {
         tracing::warn!("No images found for output: {}", output.name);
+        String::from("")
     }
 }

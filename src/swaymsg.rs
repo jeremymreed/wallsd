@@ -30,6 +30,7 @@ fn process_output(raw_output: &String, state: &mut state::State) {
             mode: mode::Mode::Slideshow,
             oncalendar_string: "*-*-* *:0/2".to_string(),
             target_time: chrono::Local::now(),
+            current_wallpaper: "".to_string(),
             images: Vec::new(),
         };
         state.outputs.insert(output.name.clone(), output.clone());
