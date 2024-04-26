@@ -39,8 +39,8 @@ impl Executor {
         tracing::debug!("oncalendar_string: {:?}", self.state.config.oncalendar_string);
 
         // Tempory hack.
-        self.state.outputs.get_mut("HDMI-A-1").unwrap().oncalendar_string = String::from("*-*-* *:0/2");
-        self.state.outputs.get_mut("eDP-1").unwrap().oncalendar_string = String::from("*-*-* *:0/1");
+        //self.state.outputs.get_mut("HDMI-A-1").unwrap().oncalendar_string = String::from("*-*-* *:0/2");
+        //self.state.outputs.get_mut("eDP-1").unwrap().oncalendar_string = String::from("*-*-* *:0/1");
 
         for output in self.state.outputs.values_mut() {
             //output.oncalendar_string = config.oncalendar_string.clone();
