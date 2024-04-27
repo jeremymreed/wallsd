@@ -28,7 +28,7 @@ fn process_output(raw_output: &String, state: &mut state::State) {
                 height: json_output[index]["rect"]["height"].as_u32().unwrap(),
             },
             mode: mode::Mode::Slideshow,
-            oncalendar_string: "*-*-* *:0/2".to_string(),
+            oncalendar_string: state.config.oncalendar_string.clone(),
             target_time: chrono::Local::now(),
             current_wallpaper: "".to_string(),
             images: Vec::new(),
