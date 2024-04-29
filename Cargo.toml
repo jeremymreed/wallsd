@@ -1,6 +1,6 @@
 [package]
 name = "wallsd"
-version = "0.0.0"
+version = "0.1.0"
 description = "A daemon to control wallpaper settings"
 authors = ["Jeremy M. Reed <reeje76@gmail.com>"]
 publish = false
@@ -21,6 +21,7 @@ event-listener = "5.2.0"
 futures = "0.3.30"
 image = { version = "0.25.1", features = ["webp"] }
 json = "0.12.4"
+lazy_static = "1.4.0"
 rand = "0.8.5"
 serde = { version = "1.0.197", features = ["derive"] }
 shadow-rs = "0.27.1"
