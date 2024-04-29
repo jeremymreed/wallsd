@@ -8,6 +8,7 @@ use crate::mode::Mode;
 use shadow_rs::shadow;
 
 mod build_info;
+mod arg_parser;
 mod output_settings;
 mod executor;
 mod state;
@@ -31,6 +32,8 @@ shadow!(build);
 
 #[async_std::main]
 async fn main() {
+
+    arg_parser::parse_args();
 
     build_info::print_build_info();
 
