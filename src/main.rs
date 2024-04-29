@@ -5,7 +5,9 @@ use futures::executor::block_on;
 use crate::command::InternalCommand;
 use crate::executor::Executor;
 use crate::mode::Mode;
+use shadow_rs::shadow;
 
+mod build_info;
 mod output_settings;
 mod executor;
 mod state;
@@ -25,8 +27,12 @@ mod swaymsg;
 mod swww;
 mod collection;
 
+shadow!(build);
+
 #[async_std::main]
 async fn main() {
+
+    build_info::print_build_info();
 
     let mut executor = Executor::new();
 
