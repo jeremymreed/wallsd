@@ -35,8 +35,6 @@ async fn main() {
 
     arg_parser::parse_args();
 
-    build_info::print_build_info();
-
     let mut executor = Executor::new();
 
     executor.init();
