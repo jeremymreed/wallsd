@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use crate::output_settings::OutputSettings;
+use crate::swww;
 use crate::systemd_analyze;
 use crate::status;
 use crate::command;
@@ -26,6 +27,16 @@ impl State {
         match self.outputs.get_mut(name) {
             Some(output) => {
                 output.mode = mode;
+
+                match output.mode {
+                    mode::Mode::Oneshot => {
+                        tracing::debug!("Setting output {} to Oneshot mode", name);
+                        output.current_wallpaper = swww::set_wallpaper(output);
+                    },
+                    mode::Mode::Slideshow => {
+                        tracing::debug!("Setting output {} to Slideshow mode", name);
+                    },
+                }
                 let response = command::GeneralResponse {
                     status: status::Status::Success,
                     error: "".to_string(),
