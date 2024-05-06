@@ -7,6 +7,7 @@ use crate::executor::Executor;
 use crate::mode::Mode;
 use shadow_rs::shadow;
 
+mod swww_query;
 mod build_info;
 mod arg_parser;
 mod output_settings;

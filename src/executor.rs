@@ -1,3 +1,4 @@
+use crate::swww_query;
 use crate::logging;
 use crate::command;
 use crate::on_calendar;
@@ -23,6 +24,7 @@ impl Executor {
         logging::init();
 
         swaymsg::get_outputs(&mut self.state);
+        swww_query::get_current_wallpapers();
         tracing::debug!("Found outputs: {:#?}", self.state.outputs);
         tracing::info!("Loaded outputs");
 
