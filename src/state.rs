@@ -23,6 +23,20 @@ impl State {
         }
     }
 
+    pub fn set_initial_state(&mut self, initial_state: HashMap<String, String>) {
+        for (name, current_wallpaper) in initial_state {
+            match self.outputs.get_mut(&name) {
+                Some(output) => {
+                    output.current_wallpaper = current_wallpaper;
+                },
+                None => {
+                    tracing::error!("Output {} not found", name);
+                    panic!("Output {} not found", name);
+                }
+            }
+        }
+    }
+
     pub fn set_mode(&mut self, name: &String, mode: mode::Mode) -> Result<command::InternalCommand, command::InternalCommand> {
         match self.outputs.get_mut(name) {
             Some(output) => {

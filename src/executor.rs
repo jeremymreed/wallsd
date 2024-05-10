@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use crate::swww_query;
 use crate::logging;
 use crate::command;
@@ -24,7 +25,8 @@ impl Executor {
         logging::init();
 
         swaymsg::get_outputs(&mut self.state);
-        swww_query::get_current_wallpapers();
+        let initial_state: HashMap<String, String> = swww_query::get_current_wallpapers();
+        self.state.set_initial_state(initial_state);
         tracing::debug!("Found outputs: {:#?}", self.state.outputs);
         tracing::info!("Loaded outputs");
 
@@ -41,8 +43,8 @@ impl Executor {
         tracing::debug!("oncalendar_string: {:?}", self.state.config.oncalendar_string);
 
         // Tempory hack.
-        //self.state.outputs.get_mut("HDMI-A-1").unwrap().oncalendar_string = String::from("*-*-* *:0/2");
-        //self.state.outputs.get_mut("eDP-1").unwrap().oncalendar_string = String::from("*-*-* *:0/1");
+        // self.state.outputs.get_mut("HDMI-A-1").unwrap().oncalendar_string = String::from("*-*-* *:*:0/30");
+        // self.state.outputs.get_mut("eDP-1").unwrap().oncalendar_string = String::from("*-*-* *:*:0/15");
 
         for output in self.state.outputs.values_mut() {
             //output.oncalendar_string = config.oncalendar_string.clone();
