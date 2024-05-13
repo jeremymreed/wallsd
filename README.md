@@ -6,7 +6,7 @@ wallsd.
 1. [Purpose](https://github.com/jeremymreed/wallsd#purpose)
 2. [Building](https://github.com/jeremymreed/wallsd#building)
 3. [Installing](https://github.com/jeremymreed/wallsd#installing)
-4. [busctl examples](https://github.com/jeremymreed/wallsd#busctl%20examples)
+4. [busctl examples](https://github.com/jeremymreed/wallsd#busctl-examples)
 5. [License](https://github.com/jeremymreed/wallsd#license)
 
 
