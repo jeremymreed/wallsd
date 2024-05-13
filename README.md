@@ -67,5 +67,53 @@ I will create a PKGBUILD file for this daemon.
 # busctl examples:
 Some example usages of busctl to interact with this daemon.
 
+1. Get the settings for all outputs:
+`busctl --user call com.thetechforest.WallsD /com/thetechforest/WallsD com.thetechforest.WallsD GetOutputsSettings`
+
+Response
+```
+usa(susst) 0 "" 2 "HDMI-A-1" 0 "*-*-* *:0/15" "/home/jeremyr/Pictures/Wallpapers/wallhaven-nejr-fixed-d31073bc8bc01bcef826ad8716e818995acd4e8b0b95d132fa28bfd1e2316401-2560x1440.png" 13 "eDP-1" 1 "*-*-* *:0/15" "/home/jeremyr/Pictures/Wallpapers/DoDovgx-02c976fa55a4cb2351f2a324b97fb9e10f5be122568611b98e118ef40f108190-1920x1080.jpeg" 3364
+```
+
+2. Set the mode for a given output:  This one sets HDMI-A-1 to oneshot mode.
+`busctl --user call com.thetechforest.WallsD /com/thetechforest/WallsD com.thetechforest.WallsD SetOutputMode su "HDMI-A-1" 0`
+
+Response:
+```
+us 0 ""
+```
+
+3. Set the images for a given output:  This one sets images for HDMI-A-1.  Some of these are paths to directories.  Some of these are invalid.
+`busctl --user call com.thetechforest.WallsD /com/thetechforest/WallsD com.thetechforest.WallsD SetOutputImages sas "HDMI-A-1" 5 "/home/jeremyr/Pictures/Wallpapers/Test" "/home/jeremyr/Pictures/Wallpapers/95b31050-5290-11ea-bbbb-c9d5dfaa12ea-7b7cc31d35316f417d0476a0eaa6963ceb8b3b647beda2638c749a4e212af833-1920x1080.jpeg" "Foo_Bar.jpeg" "/home/jeremyr/Pictures/Wallpapers/DoesNotExist/" "/home/jeremyr/Pictures/Wallpapers/wallhaven-zypzov-fa48e20427e95ed8c6316759aeacbe897699ebc4ab65a81e6e83926df7e5098d-1920x1080.jpeg"`
+
+Response:
+```
+uas 0 2 "Couldn\'t process: Foo_Bar.jpeg, Error: No such file or directory (os error 2)" "Couldn\'t process: /home/jeremyr/Pictures/Wallpapers/DoesNotExist/, Error: No such file or directory (os error 2)"
+```
+
+4. Set the oncalendar string for a given output:  This one sets the oncalendar string for HDMI-A-1 to "*-*-* *:*:0/30".  If the mode is set to slideshow, the daemon will change the wallpaper every 30 seconds.  If the mode is set to oneshot, there is no apparent change.  This only changes the oncalendar string, and does not change the mode.
+`busctl --user call com.thetechforest.WallsD /com/thetechforest/WallsD com.thetechforest.WallsD SetOutputOncalendar ss "HDMI-A-1" "*-*-* *:*:0/30"`
+
+Response:
+```
+us 0 ""
+```
+
+5. To set an output to onshot mode, and specify the desired wallpaper:  Note that you have to send a SetOutputMode command to force the daemon to change the wallpaper, even if the output is already in oneshot mode.
+First send the image to be used.  By default, the daemon will look at the first image in the images vector.  If the command has additional images, those are loaded into the images vector.  However, the daemon will not use these additional images while it is in oneshot mode.
+Second, send an SetOutputMode command to force the daemon to change the wallpaper.
+```
+busctl --user call com.thetechforest.WallsD /com/thetechforest/WallsD com.thetechforest.WallsD SetOutputImages sas "HDMI-A-1" 1 "/home/jeremyr/Pictures/Wallpapers/wallhaven-3z5999-9bcf8883147fbff4a62f9857c7748f20f0019b381bfb29b593ed3c031f5e15b6-1920x1080.jpeg"
+
+busctl --user call com.thetechforest.WallsD /com/thetechforest/WallsD com.thetechforest.WallsD SetOutputMode su "HDMI-A-1" 0
+```
+
+Responses:
+```
+uas 0 0
+
+us 0 ""
+```
+
 # License:
 This program is licensed under the GPLv2 License.
