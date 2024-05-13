@@ -4,7 +4,7 @@ use crate::build;
 
 pub fn parse_args() {
     lazy_static! {
-        static ref PKG_VERSION: String = format!("v{}-{}, git workspace was {}", build::PKG_VERSION, build::COMMIT_HASH, is_git_workspace_clean());
+        static ref PKG_VERSION: String = format!("v{}-{} ({}), git workspace was {}", build::PKG_VERSION, build::COMMIT_HASH, build::BUILD_RUST_CHANNEL, is_git_workspace_clean());
     }
 
     Command::new("wallsd")
