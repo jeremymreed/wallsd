@@ -60,7 +60,7 @@ To run:
 > Cargo run
 ```
 
-# busctl examples:
+# Busctl examples:
 Some example usages of busctl to interact with this daemon.
 
 # Installing:
