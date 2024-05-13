@@ -60,12 +60,12 @@ To run:
 > Cargo run
 ```
 
-# busctl examples:
-Some example usages of busctl to interact with this daemon.
-
 # Installing:
 There is no formal installation mechanism yet.  You can copy the binaries from `target/debug/` or `target/release/` to a location in your path.
 I will create a PKGBUILD file for this daemon.
+
+# busctl examples:
+Some example usages of busctl to interact with this daemon.
 
 # License:
 This program is licensed under the GPLv2 License.
