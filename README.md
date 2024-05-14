@@ -116,4 +116,4 @@ us 0 ""
 ```
 
 # License:
-This program is licensed under the GPLv2 License.
+This program is licensed under the Apache 2.0 License.
