@@ -88,6 +88,13 @@ impl State {
                     }
                 }
                 output.oncalendar_string = oncalendar;
+                output.target_time = match systemd_analyze::get_next_event(&output.oncalendar_string) {
+                    Ok(time) => time,
+                    Err(_) => {
+                        tracing::error!("Failed to get next event for output: {:#?}", output.name);
+                        panic!("Failed to get next event for output: {:#?}", output.name);
+                    },
+                };
                 let response = command::GeneralResponse {
                     status: status::Status::Success,
                     error: "".to_string(),
