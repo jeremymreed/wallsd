@@ -7,6 +7,8 @@ use crate::output::Output;
 pub fn set_wallpaper(output: &Output) -> String {
 
     if !output.images.is_empty() {
+        // TODO: The index should be stored in each output.
+        // Shouldn't generate or set the index here.
         let index = match output.mode {
             Mode::Slideshow => {
                 rand::thread_rng().gen_range(0..output.images.len())

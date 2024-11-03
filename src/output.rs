@@ -2,6 +2,7 @@ use chrono::{DateTime, Local};
 use crate::resolution::Resolution;
 use crate::mode::Mode;
 
+// TODO: Consider putting the wallpaer index here, instead of storing the path of the current wallpaper.
 #[derive(Debug, Clone)]
 pub struct Output {
     pub name: String,
