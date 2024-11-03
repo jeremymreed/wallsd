@@ -157,6 +157,7 @@ impl State {
                 oncalendar: output.oncalendar_string.clone(),
                 current_wallpaper: output.current_wallpaper.clone(),
                 number_of_images: output.images.len() as u64,
+                images: output.images.clone(),
             });
         }
 

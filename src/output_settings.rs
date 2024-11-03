@@ -9,4 +9,5 @@ pub struct OutputSettings {
     pub oncalendar: String,
     pub current_wallpaper: String,
     pub number_of_images: u64,
+    pub images: Vec<String>,
 }
