@@ -153,6 +153,8 @@ impl State {
         for output in self.outputs.values() {
             outputs_settings.push(OutputSettings {
                 name: output.name.clone(),
+                height: output.resolution.height as u64,
+                width: output.resolution.width as u64,
                 mode: output.mode.clone(),
                 oncalendar: output.oncalendar_string.clone(),
                 current_wallpaper: output.current_wallpaper.clone(),
