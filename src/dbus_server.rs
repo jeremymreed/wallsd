@@ -149,6 +149,40 @@ impl DbusServer {
             },
         }
     }
+
+    async fn reload_collection(&self) -> command::ReloadCollectionResponse {
+        tracing::debug!("get_outputs_settings called");
+
+        let internal_command = command::InternalCommand::ReloadCollectionCommand;
+
+        match self.tx.send(internal_command).await {
+            Ok(_) => (),
+            Err(error) => {
+                tracing::error!("Error sending message to main thread: {:#?}", error);
+                // This is a fatal error, so we should probably exit.
+                panic!("Error sending message to main thread: {:#?}", error);
+            }
+        }
+
+        match self.rx.recv_blocking() {
+            Ok(message) => {
+                match message {
+                    command::InternalCommand::ReloadCollectionResponse(response) => {
+                        response
+                    },
+                    _ => {
+                        tracing::error!("Unexpected message received: {:#?}", message);
+                        panic!("Unexpected message received: {:#?}", message);
+                    },
+                }
+            },
+            Err(error) => {
+                tracing::error!("Error receiving message from main thread: {:#?}", error);
+                // This is a fatal error, so we should probably exit.
+                panic!("Error receiving message from main thread: {:#?}", error);
+            },
+        }
+    }
 }
 
 pub async fn run_server(tx: Sender<command::InternalCommand>, rx: Receiver<command::InternalCommand>) -> Result<()> {

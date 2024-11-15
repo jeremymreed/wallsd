@@ -11,9 +11,11 @@ pub enum InternalCommand {
     SetOutputOncalendarCommand(SetOutputOncalendarCommand),
     SetOutputImagesCommand(SetOutputImagesCommand),
     GetOutputsSettingsCommand,
+    ReloadCollectionCommand,
     GeneralResponse(GeneralResponse),
     GeneralResponseErrorVec(GeneralResponseErrorVec),
     GetOutputSettingsResponse(GetOutputSettingsResponse),
+    ReloadCollectionResponse(ReloadCollectionResponse),
 }
 
 #[derive(Serialize, Deserialize, Type, Debug)]
@@ -40,6 +42,12 @@ pub struct GetOutputSettingsResponse {
     pub status: status::Status,
     pub error: String,
     pub outputs_settings: Vec<OutputSettings>,
+}
+
+#[derive(Serialize, Deserialize, Type, Debug)]
+pub struct ReloadCollectionResponse {
+    pub status: status::Status,
+    pub error: String,
 }
 
 #[derive(Serialize, Deserialize, Type, Debug)]

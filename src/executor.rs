@@ -30,15 +30,7 @@ impl Executor {
         tracing::debug!("Found outputs: {:#?}", self.state.outputs);
         tracing::info!("Loaded outputs");
 
-        let mut collection: collection::Collection = collection::Collection::new();
-
-        collection.scan_collection(&self.state.config.default_wallpaper_collection);
-
-        for output in self.state.outputs.values_mut() {
-            output.images = collection.collection.clone();
-        }
-
-        collection.collection.clear();
+        self.state.load_collection();
 
         tracing::debug!("oncalendar_string: {:?}", self.state.config.oncalendar_string);
 
@@ -76,6 +68,10 @@ impl Executor {
             command::InternalCommand::GetOutputsSettingsCommand => {
                 tracing::debug!("Recieved GetOutputsSettingsCommand");
                 self.state.get_outputs_settings()
+            },
+            command::InternalCommand::ReloadCollectionCommand => {
+                tracing::debug!("Recieved ReloadCollectionCommand");
+                self.state.load_collection()
             },
             _ => {
                 tracing::debug!("Recieved unknown command!");

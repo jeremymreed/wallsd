@@ -169,4 +169,21 @@ impl State {
             outputs_settings,
         }))
     }
+
+    pub fn load_collection(&mut self) -> Result<command::InternalCommand, command::InternalCommand>{
+        let mut collection: collection::Collection = collection::Collection::new();
+
+        collection.scan_collection(&self.config.default_wallpaper_collection);
+
+        for output in self.outputs.values_mut() {
+            output.images = collection.collection.clone();
+        }
+
+        collection.collection.clear();
+
+        Ok(command::InternalCommand::ReloadCollectionResponse(command::ReloadCollectionResponse {
+            status: status::Status::Success,
+            error: "".to_string(),
+        }))
+    }
 }
