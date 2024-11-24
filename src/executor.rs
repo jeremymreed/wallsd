@@ -95,7 +95,7 @@ impl Executor {
                     if on_calendar::is_time_after_target(output.target_time, current_time) {
                         tracing::debug!("******  TIMER FIRED *******");
                         //self.state.set_wallpaper(&output.name);
-                        output.current_wallpaper = swww::set_wallpaper(output);
+                        swww::set_wallpaper(output);
                         output.target_time = match systemd_analyze::get_next_event(&output.oncalendar_string) {
                             Ok(time) => time,
                             Err(_) => {
