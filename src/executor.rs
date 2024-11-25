@@ -30,7 +30,7 @@ impl Executor {
         tracing::debug!("Found outputs: {:#?}", self.state.outputs);
         tracing::info!("Loaded outputs");
 
-        self.state.load_collection();
+        let _ = self.state.load_collection();
 
         tracing::debug!("oncalendar_string: {:?}", self.state.config.oncalendar_string);
 
