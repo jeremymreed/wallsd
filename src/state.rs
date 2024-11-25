@@ -45,7 +45,7 @@ impl State {
                 match output.mode {
                     mode::Mode::Oneshot => {
                         tracing::debug!("Setting output {} to Oneshot mode", name);
-                        output.current_wallpaper = swww::set_wallpaper(output);
+                        swww::set_wallpaper(output);
                     },
                     mode::Mode::Slideshow => {
                         tracing::debug!("Setting output {} to Slideshow mode", name);
