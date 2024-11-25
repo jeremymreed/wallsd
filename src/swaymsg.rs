@@ -31,6 +31,7 @@ fn process_output(raw_output: &String, state: &mut state::State) {
             oncalendar_string: state.config.oncalendar_string.clone(),
             target_time: chrono::Local::now(),
             current_wallpaper: "".to_string(),
+            current_index: 0,
             images: Vec::new(),
         };
         state.outputs.insert(output.name.clone(), output.clone());
